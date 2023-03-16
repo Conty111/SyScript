@@ -1,7 +1,11 @@
 import csv
 import socket
 from pythonping import ping
+from socket import AF_INET, SOCK_STREAM
 
+
+
+sock = socket.socket(AF_INET, SOCK_STREAM)
 
 def make_adr(adr: str):
     try:
@@ -9,16 +13,21 @@ def make_adr(adr: str):
     except:
         return "Error in domain adress"
 
-# def check_adr(serv: list):
-#     for i in serv[1]:
-#         if serv[2]:
-#             # ICMP
-#             print("NOne")
-#             ping(i, count=4, timeout=5, verbose=True)
-#         # for j in serv[2]:
-            
-#         #     else:
-#         #         socket
+def check_adr(serv: list):
+    result = []
+    print(serv)
+    for i in serv[1]:
+        if serv[2] == False:
+            # ICMP
+            result.append(ping(i, count=4, timeout=5))
+            continue
+
+        for j in serv[2]:
+            result.append(sock.connect_ex((i, int(j))))
+            print(i, j)
+            sock.connect_ex((i, int(j)))
+
+    return result
 
 
 
@@ -27,7 +36,7 @@ with open("test.csv", newline='') as csvfile:
     file_input = csv.reader(csvfile, delimiter=";")
     for row in file_input:
 
-        # Преобразование в формат ['доменное имя', ['IP-адреса'], ['порты']]
+        # Преобразование в формат ['доменное имя', ['IP-адреса'], ['порты']] или ['???', ['IP-адрес'], False]
         if row[0] and "." in row[0] or row[0] == 'localhost':
             if not (row[0].replace(".", "", len(row[0]))).isdigit():
                 row.insert(1, make_adr(row[0]))
@@ -38,8 +47,11 @@ with open("test.csv", newline='') as csvfile:
                 except:
                     row.insert(0, "???")
                     row[1] = [row[1]]
-            row[2] = row[2].split(",")
+            if (row[2].replace(",", "", len(row[2]))).isdigit():
+                row[2] = row[2].split(",")
+            else:
+                row[2] = False
         else:
             continue
-        # check_adr(row)
-            
+        
+        print(check_adr(row))
