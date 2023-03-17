@@ -13,7 +13,7 @@ TIMEOUT_SOCKET = 4
 COUNT_OF_PACKET = 4
 
 
-class Checked_addresses():
+class Checked_addresses:
     def __init__(self, host_row: list):
         self.domain = host_row[0]
         self.date = []
@@ -28,7 +28,7 @@ class Checked_addresses():
 
     def set_data(self, ports: list, address: str):
         # ICMP ping если портов нет
-        if ports == []:
+        if not ports:
             ping_adr = ping(address, count=COUNT_OF_PACKET, timeout=TIMEOUT_PING)
             date = datetime.datetime.now().isoformat().replace("T", " ")
             self.date.append(date)
@@ -97,9 +97,9 @@ def get_socket_characteristics(address: str, port: int) -> tuple:
     sock.settimeout(TIMEOUT_SOCKET)
     try:
         sock.connect((address, port))
-        return (rtt, float(packet_loss), "Opened")
+        return rtt, float(packet_loss), "Opened"
     except:
-        return (rtt, float(packet_loss), "Not opened")
+        return rtt, float(packet_loss), "Not opened"
 
 
 def get_domain_adr(adr: str) -> str:
