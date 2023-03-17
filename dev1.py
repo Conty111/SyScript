@@ -13,7 +13,7 @@ TIMEOUT_SOCKET = 4
 COUNT_OF_PACKET = 4
 
 
-class Checked_addresses:
+class Checked_row:
     def __init__(self, host_row: list):
         self.domain = host_row[0]
         self.date = []
@@ -27,29 +27,13 @@ class Checked_addresses:
             self.set_data(host_row[2], address)
 
     def set_data(self, ports: list, address: str):
-        # ICMP ping если портов нет
-        if not ports:
-            ping_adr = ping(address, count=COUNT_OF_PACKET, timeout=TIMEOUT_PING)
-            date = datetime.datetime.now().isoformat().replace("T", " ")
-            self.date.append(date)
-            self.rtt.append(ping_adr.rtt_avg_ms)
-            self.ip_address.append(address)
-            self.packet_loss.append(ping_adr.packet_loss)
-            self.port.append(-1)
-            self.port_status.append("Ports are missing")
-            return
-
-        # Если указаны порты
-        for port in ports:
-            characteristics = get_socket_characteristics(address, int(port))
-            date = datetime.datetime.now().isoformat().replace("T", " ")
-
-            self.date.append(date)
-            self.rtt.append(characteristics[0])
-            self.ip_address.append(address)
-            self.packet_loss.append(characteristics[1])
-            self.port.append(address)
-            self.port_status.append(characteristics[2])
+        test = Checked_sockets(address, ports)
+        self.date.append(test.characteristics["date"])
+        self.rtt.append(test.characteristics["rtt"])
+        self.packet_loss.append(test.characteristics["packet_loss"])
+        self.port_status.append(test.characteristics["port_status"])
+        self.port.append(test.port)
+        self.ip_address.append(address)
 
     def show(self):
         for i in range(len(self.ip_address)):
@@ -61,7 +45,26 @@ class Checked_addresses:
             result += ' | ' + str(self.port[i])
             result += ' | ' + str(self.port_status[i])
             print(result)
-        print(f"\n")
+        print("\n")
+
+
+class Checked_sockets:
+    def __init__(self, address, ports=False) -> None:
+        if not ports:
+            date = datetime.datetime.now().isoformat().replace("T", " ")
+            ping_adr = ping(address, count=COUNT_OF_PACKET, timeout=TIMEOUT_PING)
+            rtt = ping_adr.rtt_avg_ms
+            packet_loss = ping_adr.packet_loss
+            port_status = "Ports are missing"
+            self.port = -1
+            self.characteristics = {"date": date,
+                                    "rtt": rtt,
+                                    "packet_loss": packet_loss,
+                                    "port_status": port_status}
+        else:
+            for port in ports:
+                self.characteristics = get_socket_characteristics(address, int(port))
+                self.port = port
 
 
 def make_adr_from_row(row: list) -> list:
@@ -89,17 +92,22 @@ def make_adr_from_row(row: list) -> list:
         return []
 
 
-def get_socket_characteristics(address: str, port: int) -> tuple:
+def get_socket_characteristics(address: str, port: int) -> dict:
     ping_adr = ping(address, timeout=TIMEOUT_PING, count=COUNT_OF_PACKET)
     rtt = ping_adr.rtt_avg_ms
     packet_loss = ping_adr.packet_loss
     sock = socket.socket(AF_INET, SOCK_STREAM)
     sock.settimeout(TIMEOUT_SOCKET)
-    try:
+    date = datetime.datetime.now().isoformat().replace("T", " ")
+    try: #Проверяем открытость порта
         sock.connect((address, port))
-        return rtt, float(packet_loss), "Opened"
+        port_status = "Opened"
     except:
-        return rtt, float(packet_loss), "Not opened"
+        port_status = "Not opened"
+    return {"rtt": rtt,
+            "packet_loss": float(packet_loss),
+            "port_status": port_status,
+            "date": date}
 
 
 def get_domain_adr(adr: str) -> str:
@@ -115,5 +123,5 @@ with open("test.csv", newline='') as csvfile:
         if row:
             row = make_adr_from_row(row)
             if row != []:
-                row_of_addresses = Checked_addresses(row)
+                row_of_addresses = Checked_row(row)
                 row_of_addresses.show()
