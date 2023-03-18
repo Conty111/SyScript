@@ -1,6 +1,6 @@
 """Main file for project."""
 from config import DOMAIN_ERROR, NOT_HOSTNAME, FILE_TO_READ
-from classes import CheckAddresses
+from CheckAddresses import CheckAddresses
 from socket import AF_INET, SOCK_STREAM
 
 import socket
