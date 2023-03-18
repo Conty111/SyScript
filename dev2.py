@@ -9,10 +9,6 @@ from pythonping import ping
 import datetime
 import socket
 import csv
-import time
-
-
-# t1 = time.time()
 
 
 class CheckAddresses:
@@ -165,7 +161,4 @@ if __name__ == "__main__":
                 if formed_row:
                     row_of_addresses = CheckAddresses(formed_row)
                     row_of_addresses.show()
-
-
-# t2 = time.time()
-# print(t2 - t1)
+                    close = input("Press any key to close...")

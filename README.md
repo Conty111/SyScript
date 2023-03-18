@@ -16,13 +16,8 @@
     pip install -r requirements.txt
 
 Запуск кода должен **всегда** происходить от имени администратора (с root правами).
-На Linux:
+После запуска кода, вывод будет производится в консоль
 
-    sudo python3 dev2.py
-    или
-    sudo python dev2.py
-На Windows:
-
-    asdasdsa
+    
 
     
