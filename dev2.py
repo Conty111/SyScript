@@ -1,6 +1,7 @@
 """Main file for project."""
 from config import TIMEOUT_PING, DOMAIN_ERROR, OPENED, NOT_OPENED, \
-    NOT_HOSTNAME, FILE_TO_READ, TIMEOUT_SOCKET, COUNT_OF_PACKET, MISSING_PORTS
+    NOT_HOSTNAME, FILE_TO_READ, TIMEOUT_SOCKET, COUNT_OF_PACKET, \
+    MISSING_PORTS, NOT_INTERNET_CONNECTION
 
 from socket import AF_INET, SOCK_STREAM
 from pythonping import ping
@@ -62,9 +63,14 @@ class CheckAddresses:
         Args:
             address: str - host address.
         """
-        ping_adr = ping(address, count=COUNT_OF_PACKET, timeout=TIMEOUT_PING)
-        self.rtt.append(ping_adr.rtt_avg_ms)
-        self.packet_loss.append(ping_adr.packet_loss * COUNT_OF_PACKET)
+        try:
+            ping_adr = ping(address, count=COUNT_OF_PACKET, timeout=TIMEOUT_PING)
+            self.rtt.append(ping_adr.rtt_avg_ms)
+            self.packet_loss.append(ping_adr.packet_loss * COUNT_OF_PACKET)
+        except BaseException:
+            print(NOT_INTERNET_CONNECTION)
+            exit()
+        
 
     def add_date(self) -> None:
         """Method adds date if it runs."""
