@@ -13,8 +13,16 @@
 ### How to use
 У вас должен быть предустановлен python3 и зависимости, указанные в requirements. Установить можно командой:
 
-    pip install "зависимость"=="версия"
+    pip install -r requirements.txt
 
 Запуск кода должен **всегда** происходить от имени администратора (с root правами).
+На Linux:
+
+    sudo python3 dev2.py
+    или
+    sudo python dev2.py
+На Windows:
+
+    asdasdsa
 
     
