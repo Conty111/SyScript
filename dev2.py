@@ -10,9 +10,10 @@ import datetime
 import socket
 import csv
 import time
+import asyncio
 
 
-# t1 = time.time()
+t1 = time.time()
 
 
 class CheckAddresses:
@@ -167,5 +168,5 @@ if __name__ == "__main__":
                     row_of_addresses.show()
 
 
-# t2 = time.time()
-# print(t2 - t1)
+t2 = time.time()
+print(t2 - t1)
