@@ -9,6 +9,7 @@ import csv
 
 def make_adr_from_row(cur_row: list) -> list:
     """Method refactors row into ["domain name", ["ip"], ["ports"]].
+
     Args:
         cur_row: list - row for format check.
     """
@@ -31,6 +32,7 @@ def make_adr_from_row(cur_row: list) -> list:
 
 def get_domain_adr(adr: str) -> str:
     """Function tries to get socket host.
+
     Args:
         adr: str - host address.
     Returns:
