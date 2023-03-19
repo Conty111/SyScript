@@ -14,6 +14,7 @@ class CheckAddresses:
 
     def __init__(self, host_row: list) -> None:
         """Initialise method for getting info from host.
+        
         Args:
             host_row: list - list of parameters for analysis.
         """
@@ -29,26 +30,34 @@ class CheckAddresses:
 
         for address in host_row[1]:
             self.loop.run_until_complete(self.fill_data(host_row[2], address))
-            
 
     async def fill_data(self, ports: list, address: str) -> None:
         """Method runs methods for filling data depending on ports.
+
         Args:
             ports: list - list of ports.
             address: str - host address.
         """
-        if not ports:
-            self.add_date()
-            await self.pinging(address)
-            self.missing_port()
-            self.ip_address.append(address)
-            return
+        if CheckAddresses.check_ip(address):
+            if not ports:
+                self.add_date()
+                await self.pinging(address)
+                self.missing_port()
+                self.ip_address.append(address)
+                return
 
-        for port in ports:
-            self.add_characteristics(address, int(port))
-            self.ip_address.append(address)
-            self.port.append(port)
+            for port in ports:
+                self.add_characteristics(address, int(port))
+                self.ip_address.append(address)
+                self.port.append(port)
+                self.add_date()
+        else:
             self.add_date()
+            self.rtt.append(TIMEOUT_PING)
+            self.packet_loss.append(float(COUNT_OF_PACKET))
+            self.ip_address.append(address)
+            self.port.append(" ".join(ports))
+            self.port_status.append(ADDRESS_ERROR)
 
     def missing_port(self) -> None:
         """Method runs if ports list is empty."""
@@ -57,6 +66,7 @@ class CheckAddresses:
 
     async def pinging(self, address: str) -> None:
         """Method uses ping function and saves data from response.
+
         Args:
             address: str - host address.
         """
@@ -75,6 +85,7 @@ class CheckAddresses:
 
     def add_characteristics(self, address: str, port: int) -> None:
         """Method gets rtt, packet_loss and port status.
+
         Args:
             address: str - host address.
             port: int - port for check.
@@ -83,7 +94,6 @@ class CheckAddresses:
         self.rtt.append(characteristics[0])
         self.packet_loss.append(characteristics[1])
         self.port_status.append(characteristics[2])
-        
 
     def show(self):
         """Method prints all collected data in readable form."""
@@ -102,6 +112,7 @@ class CheckAddresses:
     @staticmethod
     def get_socket_characteristics(address: str, port: int) -> tuple:
         """Method tries to connect by socket and get sockets parameters.
+
         Args:
             address: str - host address.
             port: int - port for connection.
@@ -117,15 +128,13 @@ class CheckAddresses:
             return rtt, float(packet_loss), NOT_OPENED
         return rtt, float(packet_loss), OPENED
 
-    # @staticmethod
-    # def check_ip(address: str, arp: list) -> bool:
-    #     if address in arp:
-    #         print("ip in arp")
-    #         return True
-    #     else:
-    #         try:
-    #             ping(address, count=1, timeout=1)
-    #             print("ping yes")
-    #             return True
-    #         except BaseException:
-    #             return False
+    @staticmethod
+    def check_ip(address: str) -> bool:
+        """Method checks ip-address.
+
+        Args:
+            address: str - host address.
+        """
+        if ping(address, timeout=TIMEOUT_PING, count=1).packet_loss == 1.0:
+            return False
+        return True
