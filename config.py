@@ -11,6 +11,7 @@ NOT_HOSTNAME = "Address hasn't hostname"
 NOT_OPENED = "Not opened"
 OPENED = "Opened"
 NOT_INTERNET_CONNECTION = "You haven't connection to Internet"
+ADDRESS_ERROR = "IP-address not found in your network"
 
 # Filename
 FILE_TO_READ = "test.csv"

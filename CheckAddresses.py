@@ -1,11 +1,12 @@
 from config import TIMEOUT_PING, OPENED, NOT_OPENED, \
     TIMEOUT_SOCKET, COUNT_OF_PACKET, \
-    MISSING_PORTS, NOT_INTERNET_CONNECTION
+    MISSING_PORTS, NOT_INTERNET_CONNECTION, ADDRESS_ERROR
 from pythonping import ping
 from socket import AF_INET, SOCK_STREAM
 
-import socket
 import datetime
+import asyncio
+import socket
 
 
 class CheckAddresses:
@@ -24,10 +25,13 @@ class CheckAddresses:
         self.port = []
         self.port_status = []
 
-        for address in host_row[1]:
-            self.fill_data(host_row[2], address)
+        self.loop = asyncio.get_event_loop()
 
-    def fill_data(self, ports: list, address: str) -> None:
+        for address in host_row[1]:
+            self.loop.run_until_complete(self.fill_data(host_row[2], address))
+            
+
+    async def fill_data(self, ports: list, address: str) -> None:
         """Method runs methods for filling data depending on ports.
         Args:
             ports: list - list of ports.
@@ -35,7 +39,7 @@ class CheckAddresses:
         """
         if not ports:
             self.add_date()
-            self.pinging(address)
+            await self.pinging(address)
             self.missing_port()
             self.ip_address.append(address)
             return
@@ -51,7 +55,7 @@ class CheckAddresses:
         self.port.append(-1)
         self.port_status.append(MISSING_PORTS)
 
-    def pinging(self, address: str) -> None:
+    async def pinging(self, address: str) -> None:
         """Method uses ping function and saves data from response.
         Args:
             address: str - host address.
@@ -79,6 +83,7 @@ class CheckAddresses:
         self.rtt.append(characteristics[0])
         self.packet_loss.append(characteristics[1])
         self.port_status.append(characteristics[2])
+        
 
     def show(self):
         """Method prints all collected data in readable form."""
@@ -111,3 +116,16 @@ class CheckAddresses:
         except BaseException:
             return rtt, float(packet_loss), NOT_OPENED
         return rtt, float(packet_loss), OPENED
+
+    # @staticmethod
+    # def check_ip(address: str, arp: list) -> bool:
+    #     if address in arp:
+    #         print("ip in arp")
+    #         return True
+    #     else:
+    #         try:
+    #             ping(address, count=1, timeout=1)
+    #             print("ping yes")
+    #             return True
+    #         except BaseException:
+    #             return False

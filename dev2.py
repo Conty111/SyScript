@@ -2,9 +2,14 @@
 from config import DOMAIN_ERROR, NOT_HOSTNAME, FILE_TO_READ
 from CheckAddresses import CheckAddresses
 from socket import AF_INET, SOCK_STREAM
+from python_arptable import get_arp_table
 
 import socket
 import csv
+import time
+
+
+t1 = time.time()
 
 
 def make_adr_from_row(cur_row: list) -> list:
@@ -41,13 +46,20 @@ def get_domain_adr(adr: str) -> str:
     except BaseException:
         return DOMAIN_ERROR
 
+# def get_local_ips() -> list:
+#     return [ip_address["IP address"] for ip_address in get_arp_table()]
+
 
 if __name__ == "__main__":
     sock = socket.socket(AF_INET, SOCK_STREAM)
     with open(FILE_TO_READ, newline="") as csvfile:
+        # arp = get_local_ips()
         for row in csv.reader(csvfile, delimiter=";"):
             if row:
                 formed_row = make_adr_from_row(row)
                 if formed_row:
                     row_of_addresses = CheckAddresses(formed_row)
                     row_of_addresses.show()
+
+t2 = time.time()
+print(t2 - t1)
